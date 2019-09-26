@@ -1,0 +1,79 @@
+require 'fix/protocol/grammar_extensions/message'
+
+module Fix
+  grammar Fix
+
+    rule main
+      message <GrammarExtensions::Message>
+    end
+
+    rule message
+      header body trailer
+    end
+
+    rule header
+      begin_string body_length msg_type field 4..4
+    end
+
+    rule body
+      field*
+    end
+
+    rule trailer
+      checksum_tag equal value soh
+    end
+
+    rule begin_string
+      "8" equal value soh
+    end
+
+    rule body_length
+      "9" equal value soh
+    end
+
+    rule msg_type
+      "35" equal value soh
+    end
+
+    rule sender_comp_id
+      "49" equal value soh
+    end
+
+    rule target_comp_id
+      "56" equal value soh
+    end
+
+    rule msg_seq_num
+      "34" equal value soh
+    end
+
+    rule sending_time
+      "52" equal value soh
+    end
+
+    rule field
+      tag equal value soh
+    end
+
+    rule tag
+      !"10=" [1-9] [0-9]*
+    end
+
+    rule checksum_tag
+      "10"
+    end
+
+    rule equal
+      "="
+    end
+
+    rule value
+      [^\x01]+
+    end
+
+    rule soh
+      [\x01]
+    end
+
+  end
+end
